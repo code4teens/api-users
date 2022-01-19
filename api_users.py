@@ -1,11 +1,19 @@
 import bcrypt
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 
 from database import db_session
 from models import User
 from schemata import UserSchema
 
 api_users = Blueprint('api_users', __name__)
+
+
+@api_users.route('/users')
+def get_users():
+    users = User.query.order_by(User.id).all()
+    data = UserSchema(many=True).dump(users)
+
+    return jsonify(data), 200
 
 
 @api_users.route('/users', methods=['POST'])

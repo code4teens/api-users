@@ -9,6 +9,9 @@ class UserSchema(Schema):
     name = fields.String()
     discriminator = fields.String()
     display_name = fields.String()
+    is_admin = fields.Boolean()
+    created_at = fields.DateTime(dump_only=True)
+    last_updated = fields.DateTime(dump_only=True)
 
     @post_load
     def make_user(self, data, **kwargs):

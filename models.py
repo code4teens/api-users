@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Column, String
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, func, String
 from sqlalchemy.orm import validates
 
 from database import Base
@@ -11,6 +11,9 @@ class User(Base):
     name = Column(String(64), nullable=False)
     discriminator = Column(String(4), nullable=False)
     display_name = Column(String(64), nullable=False)
+    is_admin = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    last_updated = Column(DateTime, nullable=False, default=func.now())
 
     @validates('id')
     def validate_id(self, key, id):
