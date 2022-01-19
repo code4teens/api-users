@@ -66,6 +66,30 @@ def create_user():
         return data, 400
 
 
+@api_users.route('/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user = User.query.filter_by(id=id).one_or_none()
+
+    if user is not None:
+        db_session.delete(user)
+        db_session.commit()
+        data = {
+            'title': 'OK',
+            'status': 200,
+            'detail': f'User {id} deleted'
+        }
+
+        return data, 200
+    else:
+        data = {
+            'title': 'Not Found',
+            'status': 404,
+            'detail': f'User {id} not found'
+        }
+
+        return data, 404
+
+
 @api_users.route('/users/<int:id>/password', methods=['POST'])
 def change_password(id):
     keys = ['old_password', 'new_password']
