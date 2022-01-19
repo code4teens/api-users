@@ -92,6 +92,51 @@ def get_user(id):
         return data, 404
 
 
+@api_users.route('/users/<int:id>', methods=['PUT'])
+def update_user(id):
+    keys = ['name', 'discriminator', 'display_name', 'is_admin']
+
+    if all(key in keys for key in request.json):
+        existing_user = User.query.filter_by(id=id).one_or_none()
+
+        if existing_user is not None:
+            user_schema = UserSchema()
+
+            try:
+                user = user_schema.load(request.json)
+            except Exception as _:
+                data = {
+                    'title': 'Bad Request',
+                    'status': 400,
+                    'detail': 'Some values failed validation'
+                }
+
+                return data, 400
+            else:
+                user.id = id
+                db_session.merge(user)
+                db_session.commit()
+                data = user_schema.dump(existing_user)
+
+                return data, 200
+        else:
+            data = {
+                'title': 'Not Found',
+                'status': 404,
+                'detail': f'User {id} not found'
+            }
+
+            return data, 404
+    else:
+        data = {
+            'title': 'Bad Request',
+            'status': 400,
+            'detail': 'Missing some keys or contains extra keys'
+        }
+
+        return data, 400
+
+
 @api_users.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.filter_by(id=id).one_or_none()

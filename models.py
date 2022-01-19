@@ -61,3 +61,10 @@ class User(Base):
             raise ValueError
 
         return display_name
+
+    @validates('is_admin')
+    def validate_is_admin(self, key, is_admin):
+        if type(is_admin) is not bool:
+            raise TypeError
+
+        return is_admin
