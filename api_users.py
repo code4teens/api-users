@@ -74,6 +74,24 @@ def create_user():
         return data, 400
 
 
+@api_users.route('/users/<int:id>')
+def get_user(id):
+    user = User.query.filter_by(id=id).one_or_none()
+
+    if user is not None:
+        data = UserSchema().dump(user)
+
+        return data, 200
+    else:
+        data = {
+            'title': 'Not Found',
+            'status': 404,
+            'detail': f'User {id} not found'
+        }
+
+        return data, 404
+
+
 @api_users.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.filter_by(id=id).one_or_none()
