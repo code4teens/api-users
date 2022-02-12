@@ -1,5 +1,6 @@
 import bcrypt
 from flask import Blueprint, jsonify, request
+from sqlalchemy import exc
 
 from database import db_session
 from models import User
@@ -115,10 +116,21 @@ def update_user(id):
             else:
                 user.id = id
                 db_session.merge(user)
-                db_session.commit()
-                data = user_schema.dump(existing_user)
 
-                return data, 200
+                try:
+                    db_session.commit()
+                except exc.IntegrityError as _:
+                    data = {
+                        'title': 'Bad Request',
+                        'status': 400,
+                        'detail': 'Some values failed validation'
+                    }
+
+                    return data, 400
+                else:
+                    data = user_schema.dump(existing_user)
+
+                    return data, 200
         else:
             data = {
                 'title': 'Not Found',
