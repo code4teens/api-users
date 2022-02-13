@@ -43,7 +43,7 @@ class User(Base):
         return name
 
     @validates('discriminator')
-    def validate_name(self, key, discriminator):
+    def validate_discriminator(self, key, discriminator):
         if type(discriminator) is not str:
             raise TypeError
 

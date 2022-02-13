@@ -30,19 +30,7 @@ def create_user():
             .filter_by(discriminator=discriminator)\
             .one_or_none()
 
-        if existing_user_1 is not None or existing_user_2 is not None:
-            data = {
-                'title': 'Conflict',
-                'status': 409
-            }
-
-            if existing_user_1 is not None:
-                data['detail'] = f'User {id} already exists'
-            else:
-                data['detail'] = f'User {name}#{discriminator} already exists'
-
-            return data, 409
-        else:
+        if existing_user_1 is None and existing_user_2 is None:
             user_schema = UserSchema()
 
             try:
@@ -65,6 +53,18 @@ def create_user():
                 }
 
                 return data, 201
+        else:
+            data = {
+                'title': 'Conflict',
+                'status': 409
+            }
+
+            if existing_user_1 is not None:
+                data['detail'] = f'User {id} already exists'
+            else:
+                data['detail'] = f'User {name}#{discriminator} already exists'
+
+            return data, 409
     else:
         data = {
             'title': 'Bad Request',
