@@ -3,8 +3,8 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import exc
 
 from database import db_session
-from models import User
-from schemata import UserSchema
+from models import Cohort, Enrolment, User
+from schemata import EnrolmentSchema, UserSchema
 
 api_users = Blueprint('api_users', __name__)
 
@@ -173,6 +173,37 @@ def delete_user(id):
         return data, 404
 
 
+@api_users.route('/users/<int:id>/latest-enrolment')
+def get_user_latest_enrolment(id):
+    user = User.query.filter_by(id=id).one_or_none()
+
+    if user is not None:
+        enrolment = Enrolment.query.filter_by(user_id=user.id).join(Cohort)\
+            .order_by(Cohort.start_date.desc()).first()
+
+        if enrolment is not None:
+            data = EnrolmentSchema().dump(enrolment)
+
+            return data, 200
+        else:
+            data = {
+                'title': 'Not Found',
+                'status': 404,
+                'detail': f'User {id} not enrolled to any cohorts'
+            }
+
+            return data, 404
+    else:
+        data = {
+            'title': 'Not Found',
+            'status': 404,
+            'detail': f'User {id} not found'
+        }
+
+        return data, 404
+
+
+# TODO: phase-out
 @api_users.route('/users/<int:id>/password', methods=['POST'])
 def change_password(id):
     keys = ['old_password', 'new_password']
